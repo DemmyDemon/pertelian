@@ -26,6 +26,7 @@ var offsets = [4]byte{
 	0x80 + 0x54,
 }
 
+// PertelianX2040 keeps all the pointers and receives all the methods for interacting with your Pertelian X2040 display.
 type PertelianX2040 struct {
 	device    *gousb.Device
 	iface     *gousb.Interface
@@ -33,9 +34,16 @@ type PertelianX2040 struct {
 	ifaceDone func()
 }
 
+// ErrX2040UnknownWriteError is returned when there is an unexpected error writing to the device.
 var ErrX2040UnknownWriteError = errors.New("unknown error writing to device")
+
+// ErrX2040DeviceNotFound is returned when attempting to open a Pertelian X2040, but no such device is found. (A device matching VID=0x0403,PID=0x6001 is expected)
 var ErrX2040DeviceNotFound = errors.New("x2040 device not found")
+
+// ErrX2040OutOfRange is returned when attempting to write to a position that is outside the edges of the display, such as line 4 (0-3 are valid)
 var ErrX2040OutOfRange = errors.New("target out of display range")
+
+// ErrX2040InvalidCharacterPosition is returned when attempting to access a custom display character that is out-of-bounds, such as character 7 (0-6 are valid)
 var ErrX2040InvalidCharacterPosition = errors.New("invalid character position")
 
 // NewX2040 instantiates a new PertelianX2040 for you to play with.
