@@ -12,11 +12,13 @@ type PertelianX2040Character struct {
 	Lines [charSize]byte
 }
 
-// ErrX2040CharWant8Lines is returned if NewX2040Char() does not get exactly 8 strings.
-var ErrX2040CharWant8Lines = errors.New("characters must be made up of exactly 8 lines")
+var (
+	// ErrX2040CharWant8Lines is returned if NewX2040Char() does not get exactly 8 strings.
+	ErrX2040CharWant8Lines = errors.New("characters must be made up of exactly 8 lines")
 
-// ErrX2040CharWidth5 is returned when NewX2040Char() is given a string that is not exactly 5 runes long.
-var ErrX2040CharWidth5 = errors.New("character lines must be exactly 5 runes long")
+	// ErrX2040CharWidth5 is returned when NewX2040Char() is given a string that is not exactly 5 runes long.
+	ErrX2040CharWidth5 = errors.New("character lines must be exactly 5 runes long")
+)
 
 // NewX2040Char assists in creating a properly formatted custom character for the display.
 // It takes exactly 8 strings of exactly 5 runes each. Any rune containing a space will be blank on the display, any rune that is not a space represents a filled dot on the display.

@@ -10,21 +10,16 @@ import (
 	"github.com/google/gousb"
 )
 
-const x2040Command = byte(0xfe)
-const x2040Clear = byte(0x1)
-const x2040LightOff = byte(0x2)
-const x2040LightOn = byte(0x3)
-const x2040Entry = byte(0x6)
-const x2040Off = byte(0x8)
-const x2040On = byte(0xc)
-const x2040Init = byte(0x38)
-
-var offsets = [4]byte{
-	0x80,
-	0x80 + 0x40,
-	0x80 + 0x14,
-	0x80 + 0x54,
-}
+const (
+	x2040Command  = byte(0xfe)
+	x2040Clear    = byte(0x1)
+	x2040LightOff = byte(0x2)
+	x2040LightOn  = byte(0x3)
+	x2040Entry    = byte(0x6)
+	x2040Off      = byte(0x8)
+	x2040On       = byte(0xc)
+	x2040Init     = byte(0x38)
+)
 
 // PertelianX2040 keeps all the pointers and receives all the methods for interacting with your Pertelian X2040 display.
 type PertelianX2040 struct {
@@ -34,17 +29,27 @@ type PertelianX2040 struct {
 	ifaceDone func()
 }
 
-// ErrX2040UnknownWriteError is returned when there is an unexpected error writing to the device.
-var ErrX2040UnknownWriteError = errors.New("unknown error writing to device")
+var (
+	// ErrX2040UnknownWriteError is returned when there is an unexpected error writing to the device.
+	ErrX2040UnknownWriteError = errors.New("unknown error writing to device")
 
-// ErrX2040DeviceNotFound is returned when attempting to open a Pertelian X2040, but no such device is found. (A device matching VID=0x0403,PID=0x6001 is expected)
-var ErrX2040DeviceNotFound = errors.New("x2040 device not found")
+	// ErrX2040DeviceNotFound is returned when attempting to open a Pertelian X2040, but no such device is found. (A device matching VID=0x0403,PID=0x6001 is expected)
+	ErrX2040DeviceNotFound = errors.New("x2040 device not found")
 
-// ErrX2040OutOfRange is returned when attempting to write to a position that is outside the edges of the display, such as line 4 (0-3 are valid)
-var ErrX2040OutOfRange = errors.New("target out of display range")
+	// ErrX2040OutOfRange is returned when attempting to write to a position that is outside the edges of the display, such as line 4 (0-3 are valid)
+	ErrX2040OutOfRange = errors.New("target out of display range")
 
-// ErrX2040InvalidCharacterPosition is returned when attempting to access a custom display character that is out-of-bounds, such as character 7 (0-6 are valid)
-var ErrX2040InvalidCharacterPosition = errors.New("invalid character position")
+	// ErrX2040InvalidCharacterPosition is returned when attempting to access a custom display character that is out-of-bounds, such as character 7 (0-6 are valid)
+	ErrX2040InvalidCharacterPosition = errors.New("invalid character position")
+
+	// offsets hold the character offsets for each line in the display.
+	offsets = [4]byte{
+		0x80,
+		0x80 + 0x40,
+		0x80 + 0x14,
+		0x80 + 0x54,
+	}
+)
 
 // NewX2040 instantiates a new PertelianX2040 for you to play with.
 func NewX2040(ctx *gousb.Context) (PertelianX2040, error) {
