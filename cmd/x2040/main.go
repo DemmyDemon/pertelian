@@ -120,8 +120,8 @@ func main() {
 			if len(line) > 20 {
 				line = line[:20]
 			}
-			lines[1] = lines[0]
-			lines[0] = line
+			lines[0] = lines[1]
+			lines[1] = line
 
 			// If we don't clear the display here, there will likely be
 			// partial lines left. If the new lines[0] is shorter than the old
