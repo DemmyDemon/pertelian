@@ -21,6 +21,10 @@ const (
 	x2040Init     = byte(0x38)
 )
 
+const (
+	WriteDelayMicroseconds = 10
+)
+
 // PertelianX2040 keeps all the pointers and receives all the methods for interacting with your Pertelian X2040 display.
 type PertelianX2040 struct {
 	device    *gousb.Device
@@ -51,8 +55,8 @@ var (
 	}
 )
 
-// NewX2040 instantiates a new PertelianX2040 for you to play with.
-func NewX2040(ctx *gousb.Context) (PertelianX2040, error) {
+// initialize is a terrible idea, and I assume I'll be adding flags to this until the sun burns out.
+func initialize(ctx *gousb.Context, autoDetach bool) (PertelianX2040, error) {
 	pert := PertelianX2040{}
 
 	device, err := ctx.OpenDeviceWithVIDPID(0x0403, 0x6001)
@@ -61,6 +65,13 @@ func NewX2040(ctx *gousb.Context) (PertelianX2040, error) {
 	}
 	if device == nil {
 		return pert, ErrX2040DeviceNotFound
+	}
+
+	if autoDetach {
+		err := device.SetAutoDetach(true)
+		if err != nil {
+			return pert, fmt.Errorf("could not set autodetach: %w", err)
+		}
 	}
 
 	iface, done, err := device.DefaultInterface()
@@ -79,6 +90,16 @@ func NewX2040(ctx *gousb.Context) (PertelianX2040, error) {
 	return pert, nil
 }
 
+// NewX2040 instantiates a new PertelianX2040 for you to play with.
+func NewX2040(ctx *gousb.Context) (PertelianX2040, error) {
+	return initialize(ctx, false)
+}
+
+// NewX2040 instantiates a new PertelianX2040 for you to play with, automatically detatching the device if it's already grabbed. YOINK.
+func NewX2040AutoDetach(ctx *gousb.Context) (PertelianX2040, error) {
+	return initialize(ctx, true)
+}
+
 // WriteGibberish writes directly to the device with no waiting for command processing, which *often* leads to corruption.
 func (pert *PertelianX2040) WriteGibberish(data []byte) (int, error) {
 	return pert.ep.Write(data)
@@ -89,9 +110,7 @@ func (pert *PertelianX2040) WriteGibberish(data []byte) (int, error) {
 func (pert *PertelianX2040) Write(data []byte) (int, error) {
 	written := 0
 	for i := 0; i < len(data); i++ {
-		if i <= 2 {
-			time.Sleep(1 * time.Microsecond)
-		}
+		time.Sleep(WriteDelayMicroseconds * time.Microsecond)
 		w, err := pert.ep.Write(data[i : i+1])
 		written += w
 		if err != nil {
